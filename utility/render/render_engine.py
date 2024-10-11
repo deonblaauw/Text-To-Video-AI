@@ -4,6 +4,7 @@ import tempfile
 import zipfile
 import platform
 import subprocess
+import PIL
 from moviepy.editor import (AudioFileClip, CompositeVideoClip, CompositeAudioClip, ImageClip,
                             TextClip, VideoFileClip)
 from moviepy.audio.fx.audio_loop import audio_loop
@@ -26,7 +27,7 @@ def get_program_path(program_name):
     program_path = search_program(program_name)
     return program_path
 
-def get_output_media(audio_file_path, timed_captions, background_video_data, video_server):
+def get_output_media(audio_file_path, timed_captions, background_video_data, video_server, landscape):
     OUTPUT_FILE_NAME = "rendered_video.mp4"
     magick_path = get_program_path("magick")
     print(magick_path)
@@ -36,6 +37,7 @@ def get_output_media(audio_file_path, timed_captions, background_video_data, vid
         os.environ['IMAGEMAGICK_BINARY'] = '/usr/bin/convert'
     
     visual_clips = []
+
     for (t1, t2), video_url in background_video_data:
         # Download the video file
         video_filename = tempfile.NamedTemporaryFile(delete=False).name
@@ -45,7 +47,27 @@ def get_output_media(audio_file_path, timed_captions, background_video_data, vid
         video_clip = VideoFileClip(video_filename)
         video_clip = video_clip.set_start(t1)
         video_clip = video_clip.set_end(t2)
+
+        print("Original clip size: ", video_clip.size)
+        
+        # Check the orientation and target size
+        if landscape:
+            target_size = (1920, 1080)
+        else:
+            target_size = (1080, 1920)
+        
+        # Only resize if the video size does not match the target size
+        if video_clip.size != list(target_size):
+            print("Resizing clip to: ", target_size)
+            video_clip = video_clip.resize(target_size, PIL.Image.Resampling.LANCZOS)
+        else:
+            print("No resize needed")
+        
+        print("Final clip size: ", video_clip.size)
+        
         visual_clips.append(video_clip)
+
+
     
     audio_clips = []
     audio_file_clip = AudioFileClip(audio_file_path)

@@ -20,8 +20,11 @@ if __name__ == "__main__":
     SAMPLE_TOPIC = args.topic
     SAMPLE_FILE_NAME = "audio_tts.wav"
     VIDEO_SERVER = "pexel"
+    LANDSCAPE=False
+    PROVIDER = "openai" # options are: openai | groq
+    MODEL = "gpt-4o" # options are: gpt-4o (for openai) | mixtral-8x7b-32768 (groq)
 
-    response = generate_script(SAMPLE_TOPIC)
+    response = generate_script(SAMPLE_TOPIC , PROVIDER , MODEL)
     print("script: {}".format(response))
 
     # Uses Openai's TTS instead of Edge TTS (since it's much better)
@@ -31,13 +34,13 @@ if __name__ == "__main__":
     print("[DEBUG] Timed captions coming in hot:")
     print(timed_captions)
 
-    search_terms = getVideoSearchQueriesTimed(response, timed_captions)
+    search_terms = getVideoSearchQueriesTimed(response, timed_captions , PROVIDER , MODEL)
     print("[DEBUG] Search terms coming in hot:")
     print(search_terms)
 
     background_video_urls = None
     if search_terms is not None:
-        background_video_urls = generate_video_url(search_terms, VIDEO_SERVER)
+        background_video_urls = generate_video_url(search_terms, VIDEO_SERVER, orientation_landscape=LANDSCAPE)
         print(background_video_urls)
     else:
         print("No background video")
@@ -45,7 +48,7 @@ if __name__ == "__main__":
     background_video_urls = merge_empty_intervals(background_video_urls)
 
     if background_video_urls is not None:
-        video = get_output_media(SAMPLE_FILE_NAME, timed_captions, background_video_urls, VIDEO_SERVER)
+        video = get_output_media(SAMPLE_FILE_NAME, timed_captions, background_video_urls, VIDEO_SERVER, LANDSCAPE)
         print(video)
     else:
         print("No video")
