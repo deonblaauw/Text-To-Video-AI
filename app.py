@@ -5,7 +5,7 @@ import json
 import asyncio
 import whisper_timestamped as whisper
 from utility.script.script_generator import generate_script
-from utility.audio.audio_generator import generate_audio
+from utility.audio.audio_generator import generate_audio_openai
 from utility.captions.timed_captions_generator import generate_timed_captions
 from utility.video.background_video_generator import generate_video_url
 from utility.render.render_engine import get_output_media
@@ -24,12 +24,15 @@ if __name__ == "__main__":
     response = generate_script(SAMPLE_TOPIC)
     print("script: {}".format(response))
 
-    asyncio.run(generate_audio(response, SAMPLE_FILE_NAME))
+    # Uses Openai's TTS instead of Edge TTS (since it's much better)
+    asyncio.run(generate_audio_openai(response, SAMPLE_FILE_NAME))
 
     timed_captions = generate_timed_captions(SAMPLE_FILE_NAME)
+    print("[DEBUG] Timed captions coming in hot:")
     print(timed_captions)
 
     search_terms = getVideoSearchQueriesTimed(response, timed_captions)
+    print("[DEBUG] Search terms coming in hot:")
     print(search_terms)
 
     background_video_urls = None

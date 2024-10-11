@@ -2,7 +2,7 @@ import whisper_timestamped as whisper
 from whisper_timestamped import load_model, transcribe_timestamped
 import re
 
-def generate_timed_captions(audio_filename,model_size="base"):
+def generate_timed_captions(audio_filename,model_size="large"):
     WHISPER_MODEL = load_model(model_size)
    
     gen = transcribe_timestamped(WHISPER_MODEL, audio_filename, verbose=False, fp16=False)
