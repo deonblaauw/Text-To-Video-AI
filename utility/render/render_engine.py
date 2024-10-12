@@ -7,7 +7,7 @@ import subprocess
 import PIL
 import random
 from moviepy.editor import (AudioFileClip, CompositeVideoClip, CompositeAudioClip, ImageClip,
-                            TextClip, VideoFileClip)
+                            TextClip, VideoFileClip, vfx)
 from moviepy.audio.fx.audio_loop import audio_loop
 from moviepy.audio.fx.audio_normalize import audio_normalize
 import requests
@@ -27,10 +27,6 @@ def search_program(program_name):
 def get_program_path(program_name):
     program_path = search_program(program_name)
     return program_path
-
-import os
-import random
-from moviepy.editor import AudioFileClip, vfx
 
 def get_music():
     # Define the path to the background_music folder
@@ -132,3 +128,4 @@ def get_output_media(sample_topic, audio_file_path, timed_captions, background_v
         os.remove(video_filename)
 
     return OUTPUT_FILE_NAME
+
