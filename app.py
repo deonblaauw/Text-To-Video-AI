@@ -28,6 +28,7 @@ if __name__ == "__main__":
     VIDEO_SERVER = "pexel"
     PROVIDER = "openai"  # options are: openai | groq
     MODEL = "gpt-4o"     # options are: gpt-4o (for openai) | mixtral-8x7b-32768 (groq)
+    VOICE = "Random"     # Options are ["alloy", "echo", "fable", "onyx", "nova", "shimmer"], anything else results in random selection
     OUTPUT_FILE = args.output_file  # File to save the response and hashtags
 
     # Set landscape orientation based on argument
@@ -48,8 +49,8 @@ if __name__ == "__main__":
     # Save response and hashtags to a file
     save_video_description_to_file(OUTPUT_FILE, response, vid_hashtags)
 
-    # Uses OpenAI's TTS instead of Edge TTS
-    asyncio.run(generate_audio_openai(response, SAMPLE_FILE_NAME))
+    # Uses OpenAI's TTS instead of Edge TTS. 
+    asyncio.run(generate_audio_openai(response, SAMPLE_FILE_NAME , VOICE))
 
     timed_captions = generate_timed_captions(SAMPLE_FILE_NAME)
     print("[DEBUG] Timed captions coming in hot:")

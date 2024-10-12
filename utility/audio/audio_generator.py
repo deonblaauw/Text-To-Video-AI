@@ -1,16 +1,24 @@
 import edge_tts
 import requests
 import os
+import random
 
-async def generate_audio(text,outputFilename):
-    communicate = edge_tts.Communicate(text,"en-AU-WilliamNeural")
+async def generate_audio(text, outputFilename):
+    communicate = edge_tts.Communicate(text, "en-AU-WilliamNeural")
     await communicate.save(outputFilename)
 
-
 # Async function to generate audio using OpenAI TTS
-async def generate_audio_openai(text, outputFilename):
+async def generate_audio_openai(text, outputFilename, voice=None):
     api_key = os.getenv("OPENAI_API_KEY")  # Ensure your API key is stored in an environment variable
     url = "https://api.openai.com/v1/audio/speech"
+
+    # List of available voices
+    available_voices = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
+
+    # Check if the provided voice is valid; if not, choose a random one
+    if voice not in available_voices:
+        voice = random.choice(available_voices)
+        print(f"No voice specified by user. Using random voice: {voice}")
 
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -20,7 +28,7 @@ async def generate_audio_openai(text, outputFilename):
     payload = {
         "model": "tts-1",
         "input": text,
-        "voice": "alloy"
+        "voice": voice  # Use the validated or random voice
     }
 
     # Make a POST request to OpenAI API
@@ -36,5 +44,3 @@ async def generate_audio_openai(text, outputFilename):
         # Handle API errors
         print(f"Failed to generate audio. Status code: {response.status_code}")
         print(f"Response: {response.text}")
-
-
