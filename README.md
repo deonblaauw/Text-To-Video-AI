@@ -23,6 +23,7 @@ Run the following steps
 ```
 export OPENAI_KEY="api-key"
 export PEXELS_KEY="pexels-key"
+export GROQ_API_KEY="groq-key"
 
 pip install -r requirements.text
 
@@ -30,6 +31,11 @@ python app.py "Topic name"
 ```
 
 Output will be generated in rendered_video.mp4
+
+If you are running on Apple Silicon, remember to install ImageMagick
+```
+brew install imagemagick
+```
 
 ### Quick Start
 

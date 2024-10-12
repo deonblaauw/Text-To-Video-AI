@@ -5,6 +5,7 @@ import zipfile
 import platform
 import subprocess
 import PIL
+import random
 from moviepy.editor import (AudioFileClip, CompositeVideoClip, CompositeAudioClip, ImageClip,
                             TextClip, VideoFileClip)
 from moviepy.audio.fx.audio_loop import audio_loop
@@ -27,8 +28,32 @@ def get_program_path(program_name):
     program_path = search_program(program_name)
     return program_path
 
-def get_output_media(audio_file_path, timed_captions, background_video_data, video_server, landscape):
-    OUTPUT_FILE_NAME = "rendered_video.mp4"
+import os
+import random
+from moviepy.editor import AudioFileClip, vfx
+
+def get_music():
+    # Define the path to the background_music folder
+    music_folder = "background_music"
+
+    # List all .wav files in the folder
+    music_files = [f for f in os.listdir(music_folder) if f.endswith('.wav')]
+
+    # Select a random .wav file from the list
+    if music_files:
+        music_file_path = os.path.join(music_folder, random.choice(music_files))
+    else:
+        music_file_path = None  # If no music files found, return None
+    
+    return music_file_path
+
+def get_output_media(sample_topic, audio_file_path, timed_captions, background_video_data, video_server, landscape):
+    
+    if len(sample_topic) < 40:
+        OUTPUT_FILE_NAME = sample_topic.replace(" ", "_") + ".mp4"
+    else:
+        OUTPUT_FILE_NAME = "rendered_video.mp4"
+
     magick_path = get_program_path("magick")
     print(magick_path)
     if magick_path:
@@ -47,8 +72,6 @@ def get_output_media(audio_file_path, timed_captions, background_video_data, vid
         video_clip = VideoFileClip(video_filename)
         video_clip = video_clip.set_start(t1)
         video_clip = video_clip.set_end(t2)
-
-        print("Original clip size: ", video_clip.size)
         
         # Check the orientation and target size
         if landscape:
@@ -58,15 +81,13 @@ def get_output_media(audio_file_path, timed_captions, background_video_data, vid
         
         # Only resize if the video size does not match the target size
         if video_clip.size != list(target_size):
+            print("Incorrect Clip size detected: ", video_clip.size)
             print("Resizing clip to: ", target_size)
             video_clip = video_clip.resize(target_size, PIL.Image.Resampling.LANCZOS)
         else:
             print("No resize needed")
         
-        print("Final clip size: ", video_clip.size)
-        
         visual_clips.append(video_clip)
-
 
     
     audio_clips = []
@@ -79,6 +100,22 @@ def get_output_media(audio_file_path, timed_captions, background_video_data, vid
         text_clip = text_clip.set_end(t2)
         text_clip = text_clip.set_position(["center", 800])
         visual_clips.append(text_clip)
+
+    # Get music
+    music_file_path = get_music()
+    
+    # Add the generated music to the video
+    if music_file_path:
+        music_clip = AudioFileClip(music_file_path)
+        
+        # Adjust volume (e.g., reduce to 80%)
+        music_clip = music_clip.volumex(0.80)
+
+        # Loop the music to fit the video duration
+        video_duration = sum([(t2 - t1) for (t1, t2), _ in background_video_data])
+        music_clip = music_clip.fx(vfx.loop, duration=video_duration)
+        
+        audio_clips.append(music_clip)
 
     video = CompositeVideoClip(visual_clips)
     

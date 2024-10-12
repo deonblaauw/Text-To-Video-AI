@@ -79,46 +79,62 @@ def fix_json(json_str):
     return json_str
 
 def fix_json_content(content):
-    # Fix improperly formatted strings with double quotes for JSON compatibility
-    content = content.replace("dog\"s", "dog's")  # Fix improperly formatted "dog"s"
-    content = content.replace("\'", "\"")  # Replace single quotes with double quotes for JSON
+    # Fix improperly formatted strings, handling cases where single quotes should be preserved
+    # Fixes specific issues like contractions or possessive apostrophes
+    content = re.sub(r'(\w)"(\w)', r'\1\'\2', content)  # Fix "word"s" to "word's"
+    
+    # Handle cases where single quotes were incorrectly used for JSON keys/values
+    content = content.replace("\'", "\"")  # Replace stray single quotes with double quotes
+    
     return content
 
 def fix_quotes(content):
-    # Ensure correct usage of apostrophes within words, like cow's vs cow"s
-    # Example: replace occurrences like `cow"s` to `cow's`
-    return re.sub(r'(\w)"(\w)', r'\1\'\2', content)
+    # Additional pass to ensure all quotes are correctly formatted
+    # Replace incorrectly placed double quotes inside words (e.g., cow"s to cow's)
+    content = re.sub(r'(\w)"(\w)', r'\1\'\2', content)
+    return content
 
 def getVideoSearchQueriesTimed(script, captions_timed, provider, model):
+    # Assuming the end timestamp is the second value of the last tuple in captions_timed
     end = captions_timed[-1][0][1]
     try:
-        out = [[[0, 0], ""]]
+        out = [[[0, 0], ""]]  # Initialize output with a placeholder
         while out[-1][0][1] != end:
-            content = call_OpenAI(script, captions_timed, provider, model)
-            content = fix_json(content)  # Fix common JSON issues
-            content = fix_json_content(content)  # Fix more specific content-related issues
+            content = call_OpenAI(script, captions_timed, provider, model)  # Fetch content
+            
+            # Step 1: Fix common JSON formatting issues
+            content = fix_json(content)  
+            
+            # Step 2: Handle additional content-specific issues
+            content = fix_json_content(content)  
 
             try:
-                out = json.loads(content)  # Parse fixed JSON
-            except Exception as e:
+                # Try parsing the content as JSON
+                out = json.loads(content)  
+            except json.JSONDecodeError as e:
                 print("Original content: \n", content, "\n\n")
                 
-                # Remove extraneous formatting around JSON blocks
+                # Step 3: Remove formatting artifacts like markdown (```json blocks)
                 content = content.replace("```json", "").replace("```", "")
                 
-                # Fix problematic quotes inside the JSON content
+                # Step 4: Attempt fixing problematic quotes again
                 fixed_content = fix_quotes(content)
                 print("Fixed content: \n", fixed_content, "\n\n")
                 
                 try:
-                    out = json.loads(fixed_content)  # Try parsing the fixed content again
-                except Exception as e_inner:
+                    # Try parsing the cleaned-up content again
+                    out = json.loads(fixed_content)  
+                except json.JSONDecodeError as e_inner:
                     print("Still failing after fix:", e_inner)
                     return None
+        
+        # If everything works, return the parsed JSON
         return out
     except Exception as e:
+        # Generic error handler
         print("Error in response:", e)
         return None
+
 
 
 
