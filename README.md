@@ -30,7 +30,11 @@ pip install -r requirements.text
 python app.py "Topic name"
 ```
 
-Output will be generated in rendered_video.mp4
+Output will be generated in a file named Topic_name.mp4 while "Topic name" is less than 40 characters, otherwise it will be named rendered_video.mp4. The default renders a TikTok style reel video at 1080x1920 resolution, along with voice over and background music. To render landscape, add the `--landscape` flag after the text query i.e. 
+
+```
+python app.py "Topic name" --landscape
+```
 
 If you are running on Apple Silicon, remember to install ImageMagick
 ```

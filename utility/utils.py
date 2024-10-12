@@ -32,3 +32,15 @@ def log_response(log_type, query,response):
         filepath = os.path.join(DIRECTORY_LOG_PEXEL, filename)
         with open(filepath, "w") as outfile:
             outfile.write(json.dumps(log_entry) + '\n')
+
+
+def save_video_description_to_file(filename, script, hashtags):
+    try:
+        with open(filename, 'w') as f:
+            f.write("Description:\n")
+            f.write(script + "\n\n")
+            f.write("Hashtags:\n")
+            f.write(hashtags + "\n\n")
+        print(f"Response and hashtags successfully saved to {filename}")
+    except Exception as e:
+        print(f"Error saving to file: {e}")

@@ -85,7 +85,7 @@ def get_output_media(sample_topic, audio_file_path, timed_captions, background_v
             print("Resizing clip to: ", target_size)
             video_clip = video_clip.resize(target_size, PIL.Image.Resampling.LANCZOS)
         else:
-            print("No resize needed")
+            print("Clip processed")
         
         visual_clips.append(video_clip)
 

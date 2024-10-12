@@ -29,8 +29,10 @@ def getBestVideo(query_string, orientation_landscape=True, used_vids=[]):
     videos = vids['videos']
 
     if orientation_landscape:
+        print("Landscape video 1920x1080")
         filtered_videos = [video for video in videos if video['width'] >= 1920 and video['height'] >= 1080 and video['width'] / video['height'] == 16/9]
     else:
+        print("Portrait video 1080x1920")
         filtered_videos = [video for video in videos if video['width'] >= 1080 and video['height'] >= 1920 and video['height'] / video['width'] == 16/9]
 
     sorted_videos = sorted(filtered_videos, key=lambda x: abs(15 - int(x['duration'])))
@@ -38,12 +40,14 @@ def getBestVideo(query_string, orientation_landscape=True, used_vids=[]):
     for video in sorted_videos:
         for video_file in video['video_files']:
             if orientation_landscape and video_file['width'] == 1920 and video_file['height'] == 1080:
-                print(f"Selected video resolution: {video_file['width']}x{video_file['height']}")
+                # print(f"Selected video resolution: {video_file['width']}x{video_file['height']}")
                 if not (video_file['link'].split('.hd')[0] in used_vids):
+                    print(video_file['link'])
                     return video_file['link']
             elif not orientation_landscape and video_file['width'] == 1080 and video_file['height'] == 1920:
-                print(f"Selected video resolution: {video_file['width']}x{video_file['height']}")
+                # print(f"Selected video resolution: {video_file['width']}x{video_file['height']}")
                 if not (video_file['link'].split('.hd')[0] in used_vids):
+                    print(video_file['link'])
                     return video_file['link']
     print("NO LINKS found for this round of search with query:", query_string)
     return None

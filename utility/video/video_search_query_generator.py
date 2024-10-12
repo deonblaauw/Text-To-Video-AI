@@ -83,16 +83,19 @@ def fix_json_content(content):
     # Fixes specific issues like contractions or possessive apostrophes
     content = re.sub(r'(\w)"(\w)', r'\1\'\2', content)  # Fix "word"s" to "word's"
     
-    # Handle cases where single quotes were incorrectly used for JSON keys/values
-    content = content.replace("\'", "\"")  # Replace stray single quotes with double quotes
+    # Replace stray single quotes with double quotes, but make sure we're not breaking contractions
+    content = re.sub(r"(?<!\\)'", '"', content)  # Safely replace unescaped single quotes with double quotes
+
+    # Fix escape sequences like backslashes (if needed)
+    content = content.replace("\\", "\\\\")  # Escape any lone backslashes properly
     
     return content
 
 def fix_quotes(content):
-    # Additional pass to ensure all quotes are correctly formatted
-    # Replace incorrectly placed double quotes inside words (e.g., cow"s to cow's)
+    # Ensure all quotes are correctly formatted, like "cow"s" to "cow's"
     content = re.sub(r'(\w)"(\w)', r'\1\'\2', content)
     return content
+
 
 def getVideoSearchQueriesTimed(script, captions_timed, provider, model):
     # Assuming the end timestamp is the second value of the last tuple in captions_timed
@@ -103,14 +106,14 @@ def getVideoSearchQueriesTimed(script, captions_timed, provider, model):
             content = call_OpenAI(script, captions_timed, provider, model)  # Fetch content
             
             # Step 1: Fix common JSON formatting issues
-            content = fix_json(content)  
+            content = fix_json(content)
             
             # Step 2: Handle additional content-specific issues
-            content = fix_json_content(content)  
-
+            content = fix_json_content(content)
+            
             try:
                 # Try parsing the content as JSON
-                out = json.loads(content)  
+                out = json.loads(content)
             except json.JSONDecodeError as e:
                 print("Original content: \n", content, "\n\n")
                 
@@ -123,7 +126,7 @@ def getVideoSearchQueriesTimed(script, captions_timed, provider, model):
                 
                 try:
                     # Try parsing the cleaned-up content again
-                    out = json.loads(fixed_content)  
+                    out = json.loads(fixed_content)
                 except json.JSONDecodeError as e_inner:
                     print("Still failing after fix:", e_inner)
                     return None
@@ -134,6 +137,7 @@ def getVideoSearchQueriesTimed(script, captions_timed, provider, model):
         # Generic error handler
         print("Error in response:", e)
         return None
+
 
 
 

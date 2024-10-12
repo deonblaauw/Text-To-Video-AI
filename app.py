@@ -4,7 +4,9 @@ import edge_tts
 import json
 import asyncio
 import whisper_timestamped as whisper
+from utility.utils import save_video_description_to_file
 from utility.script.script_generator import generate_script
+from utility.script.hashtag_generator import generate_hashtags
 from utility.audio.audio_generator import generate_audio_openai
 from utility.captions.timed_captions_generator import generate_timed_captions
 from utility.video.background_video_generator import generate_video_url
@@ -12,11 +14,13 @@ from utility.render.render_engine import get_output_media
 from utility.video.video_search_query_generator import getVideoSearchQueriesTimed, merge_empty_intervals
 import argparse
 
+
 if __name__ == "__main__":
-    # Argument parsing to include landscape/portrait option
+    # Argument parsing to include landscape/portrait option and output filename
     parser = argparse.ArgumentParser(description="Generate a video from a topic.")
     parser.add_argument("topic", type=str, help="The topic for the video")
     parser.add_argument("--landscape", action='store_true', help="Generate video in landscape mode (default is portrait)")
+    parser.add_argument("--output_file", type=str, default="video_description.txt", help="The file name to save the script and hashtags")
 
     args = parser.parse_args()
     SAMPLE_TOPIC = args.topic
@@ -24,6 +28,7 @@ if __name__ == "__main__":
     VIDEO_SERVER = "pexel"
     PROVIDER = "openai"  # options are: openai | groq
     MODEL = "gpt-4o"     # options are: gpt-4o (for openai) | mixtral-8x7b-32768 (groq)
+    OUTPUT_FILE = args.output_file  # File to save the response and hashtags
 
     # Set landscape orientation based on argument
     LANDSCAPE = args.landscape
@@ -36,6 +41,12 @@ if __name__ == "__main__":
 
     response = generate_script(SAMPLE_TOPIC, PROVIDER, MODEL)
     print("script: {}".format(response))
+
+    vid_hashtags = generate_hashtags(response, PROVIDER, MODEL)
+    print("trends: {}".format(vid_hashtags))
+
+    # Save response and hashtags to a file
+    save_video_description_to_file(OUTPUT_FILE, response, vid_hashtags)
 
     # Uses OpenAI's TTS instead of Edge TTS
     asyncio.run(generate_audio_openai(response, SAMPLE_FILE_NAME))
@@ -55,10 +66,12 @@ if __name__ == "__main__":
     else:
         print("No background video")
 
-    background_video_urls = merge_empty_intervals(background_video_urls)
-
     if background_video_urls is not None:
-        video = get_output_media(SAMPLE_TOPIC, SAMPLE_FILE_NAME, timed_captions, background_video_urls, VIDEO_SERVER, LANDSCAPE)
-        print(video)
+        background_video_urls = merge_empty_intervals(background_video_urls)
+        if background_video_urls is not None:
+            video = get_output_media(SAMPLE_TOPIC, SAMPLE_FILE_NAME, timed_captions, background_video_urls, VIDEO_SERVER, LANDSCAPE)
+            print(video)
+        else:
+            print("No background video after merging intervals")
     else:
-        print("No video")
+        print("No background video")
