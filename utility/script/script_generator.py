@@ -3,8 +3,11 @@ from openai import OpenAI
 import json
 
 
-def generate_script(topic,provider,model):
+def generate_script(topic,provider,model,vid_time):
 
+    vid_length = float(vid_time) * 2.8
+
+    print("Instructions for video time is ", vid_time , " seconds ~", vid_length , " words in length")
     if provider == "groq":
         from groq import Groq
         client = Groq(
@@ -18,7 +21,7 @@ def generate_script(topic,provider,model):
 
     prompt = (
         """You are a seasoned content writer for a YouTube Shorts channel, specializing in facts videos. 
-        Your facts shorts are concise, each lasting less than 50 seconds (approximately 140 words). 
+        Your facts shorts are concise, each lasting approximately equal to but slightly less than {vid_time} seconds (approximately {vid_length} words). It's vital that you attempt to reach the desired word count of {vid_length}
         They are incredibly engaging and original. When a user requests a specific type of facts short, you will create it.
 
         For instance, if the user asks for:

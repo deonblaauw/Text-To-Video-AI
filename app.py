@@ -21,6 +21,7 @@ if __name__ == "__main__":
     parser.add_argument("topic", type=str, help="The topic for the video")
     parser.add_argument("--landscape", action='store_true', help="Generate video in landscape mode (default is portrait)")
     parser.add_argument("--output_file", type=str, default="video_description.txt", help="The file name to save the script and hashtags")
+    parser.add_argument("--duration", type=str, default="10", help="The duration of the video in seconds")
 
     args = parser.parse_args()
     SAMPLE_TOPIC = args.topic
@@ -30,6 +31,8 @@ if __name__ == "__main__":
     MODEL = "gpt-4o"     # options are: gpt-4o (for openai) | mixtral-8x7b-32768 (groq)
     VOICE = "Random"     # Options are ["alloy", "echo", "fable", "onyx", "nova", "shimmer"], anything else results in random selection
     OUTPUT_FILE = args.output_file  # File to save the response and hashtags
+    VIDEO_DURATION = args.duration
+    MUSIC_VOLUME = 0.7   # music volume between 0.0 and 1.0
 
     # Set landscape orientation based on argument
     LANDSCAPE = args.landscape
@@ -40,7 +43,7 @@ if __name__ == "__main__":
     else:
         print("Generating video in portrait mode.")
 
-    response = generate_script(SAMPLE_TOPIC, PROVIDER, MODEL)
+    response = generate_script(SAMPLE_TOPIC, PROVIDER, MODEL , VIDEO_DURATION)
     print("script: {}".format(response))
 
     vid_hashtags = generate_hashtags(response, PROVIDER, MODEL)
@@ -70,7 +73,7 @@ if __name__ == "__main__":
     if background_video_urls is not None:
         background_video_urls = merge_empty_intervals(background_video_urls)
         if background_video_urls is not None:
-            video = get_output_media(SAMPLE_TOPIC, SAMPLE_FILE_NAME, timed_captions, background_video_urls, VIDEO_SERVER, LANDSCAPE)
+            video = get_output_media(SAMPLE_TOPIC, SAMPLE_FILE_NAME, timed_captions, background_video_urls, VIDEO_SERVER, LANDSCAPE , MUSIC_VOLUME)
             print(video)
         else:
             print("No background video after merging intervals")

@@ -43,7 +43,7 @@ def get_music():
     
     return music_file_path
 
-def get_output_media(sample_topic, audio_file_path, timed_captions, background_video_data, video_server, landscape):
+def get_output_media(sample_topic, audio_file_path, timed_captions, background_video_data, video_server, landscape , volume):
     
     if len(sample_topic) < 40:
         OUTPUT_FILE_NAME = sample_topic.replace(" ", "_") + ".mp4"
@@ -105,7 +105,7 @@ def get_output_media(sample_topic, audio_file_path, timed_captions, background_v
         music_clip = AudioFileClip(music_file_path)
         
         # Adjust volume (e.g., reduce to 80%)
-        music_clip = music_clip.volumex(0.80)
+        music_clip = music_clip.volumex(volume)
 
         # Loop the music to fit the video duration
         video_duration = sum([(t2 - t1) for (t1, t2), _ in background_video_data])
