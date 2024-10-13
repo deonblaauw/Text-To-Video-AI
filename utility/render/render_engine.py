@@ -12,10 +12,43 @@ from moviepy.audio.fx.audio_loop import audio_loop
 from moviepy.audio.fx.audio_normalize import audio_normalize
 import requests
 
-def download_file(url, filename):
-    with open(filename, 'wb') as f:
-        response = requests.get(url)
-        f.write(response.content)
+# def download_file(url, filename):
+#     with open(filename, 'wb') as f:
+#         response = requests.get(url)
+#         f.write(response.content)
+
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+# import requests
+
+def download_file(url, output_path):
+    retry_strategy = Retry(
+        total=5,  # Number of retry attempts
+        backoff_factor=1,  # Time to wait between retries
+        status_forcelist=[429, 500, 502, 503, 504],  # List of status codes to retry on
+        allowed_methods=["GET"],  # Use 'allowed_methods' instead of 'method_whitelist'
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    http = requests.Session()
+    http.mount("https://", adapter)
+    http.mount("http://", adapter)
+
+    try:
+        response = http.get(url, stream=True)
+        response.raise_for_status()
+
+        # Write the file in chunks to avoid memory issues
+        with open(output_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=65536):
+                if chunk:  # Filter out keep-alive chunks
+                    f.write(chunk)
+        print(f"Downloaded file saved to {output_path}")
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error downloading file: {e}")
+
+
+
 
 def search_program(program_name):
     try: 
@@ -43,12 +76,15 @@ def get_music():
     
     return music_file_path
 
-def get_output_media(sample_topic, audio_file_path, timed_captions, background_video_data, video_server, landscape , volume):
-    
+def get_output_media(sample_topic, audio_file_path, timed_captions, background_video_data, video_server, landscape, volume , output_directory):
+    # Create the generated_outputs directory if it doesn't exist
+    # output_directory = "generated_outputs"
+    os.makedirs(output_directory, exist_ok=True)  # Creates the directory if it doesn't exist
+
     if len(sample_topic) < 40:
-        OUTPUT_FILE_NAME = sample_topic.replace(" ", "_") + ".mp4"
+        OUTPUT_FILE_NAME = os.path.join(output_directory, sample_topic.replace(" ", "_") + ".mp4")
     else:
-        OUTPUT_FILE_NAME = "rendered_video.mp4"
+        OUTPUT_FILE_NAME = os.path.join(output_directory, "rendered_video.mp4")
 
     magick_path = get_program_path("magick")
     print(magick_path)
@@ -85,7 +121,6 @@ def get_output_media(sample_topic, audio_file_path, timed_captions, background_v
         
         visual_clips.append(video_clip)
 
-    
     audio_clips = []
     audio_file_clip = AudioFileClip(audio_file_path)
     audio_clips.append(audio_file_clip)
@@ -128,4 +163,5 @@ def get_output_media(sample_topic, audio_file_path, timed_captions, background_v
         os.remove(video_filename)
 
     return OUTPUT_FILE_NAME
+
 

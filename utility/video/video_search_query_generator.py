@@ -73,33 +73,22 @@ import re
 import json
 
 def fix_json(json_str):
-    # Replace typographical apostrophes with straight single quotes
-    json_str = json_str.replace("’", "'")
-    
-    # Replace mixed and incorrect quotes with double quotes
-    json_str = json_str.replace("“", "\"").replace("”", "\"").replace("‘", "\"")
-    
-    # Handle the case for JSON backslashes by escaping them properly
-    json_str = json_str.replace("\\", "\\\\")  # Escape any lone backslashes properly
-    
+    # Escape backslashes that are not already escaped
+    json_str = re.sub(r'(?<!\\)\\(?![\\"])', r"\\\\", json_str)  # Only escape lone backslashes
     return json_str
 
 def fix_json_content(content):
     # Fix improperly formatted strings, handling cases where single quotes should be preserved
-    # Fixes specific issues like contractions or possessive apostrophes
     content = re.sub(r'(\w)"(\w)', r'\1\'\2', content)  # Fix "word"s" to "word's"
     
-    # Replace stray single quotes with double quotes, but make sure we're not breaking contractions
-    content = re.sub(r"(?<!\\)'", '"', content)  # Safely replace unescaped single quotes with double quotes
-
-    # Fix escape sequences like backslashes (if needed)
-    content = content.replace("\\", "\\\\")  # Escape any lone backslashes properly
+    # Replace stray single quotes with double quotes in keys/values
+    content = re.sub(r'(?<=[:,\s])\'(?=\w+\'?\s*[:,\]])', '"', content)  # Replace single quotes in keys/values
     
     return content
 
 def fix_quotes(content):
-    # Ensure all quotes are correctly formatted, like "cow"s" to "cow's"
-    content = re.sub(r'(\w)"(\w)', r'\1\'\2', content)
+    # Ensure all quotes are correctly formatted around JSON keys/values
+    content = re.sub(r'(?<=[:,\s])\'(?=\w+\'?\s*[:,\]])', '"', content)
     return content
 
 def getVideoSearchQueriesTimed(script, captions_timed, provider, model):
@@ -142,6 +131,7 @@ def getVideoSearchQueriesTimed(script, captions_timed, provider, model):
         # Generic error handler
         print("Error in response:", e)
         return None
+
 
 
 

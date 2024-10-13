@@ -22,6 +22,7 @@ if __name__ == "__main__":
     parser.add_argument("--landscape", action='store_true', help="Generate video in landscape mode (default is portrait)")
     parser.add_argument("--output_file", type=str, default="video_description.txt", help="The file name to save the script and hashtags. Default is video_description.txt")
     parser.add_argument("--tts", type=str, default="openai", help="Text to speech engine. Options are openai or edge. Default is openai")
+    parser.add_argument("--output_dir", type=str, default="generated_outputs", help="Foldername where videos and other outputs are stored. Default is generated_outputs")
     parser.add_argument("--duration", type=str, default="50", help="The duration of the video in seconds. Default is 50 seconds")
 
     args = parser.parse_args()
@@ -34,7 +35,8 @@ if __name__ == "__main__":
     TTS_ENGINE = args.tts           # Options are openai | edge
     OUTPUT_FILE = args.output_file  # File to save the response and hashtags
     VIDEO_DURATION = args.duration
-    MUSIC_VOLUME = 0.7              # music volume between 0.0 and 1.0
+    MUSIC_VOLUME = 0.5              # music volume between 0.0 and 1.0
+    OUTPUTDIR = args.output_dir
 
     # Set landscape orientation based on argument
     LANDSCAPE = args.landscape
@@ -52,7 +54,7 @@ if __name__ == "__main__":
     print("trends: {}".format(vid_hashtags))
 
     # Save response and hashtags to a file
-    save_video_description_to_file(OUTPUT_FILE, response, vid_hashtags)
+    save_video_description_to_file(OUTPUT_FILE, response, vid_hashtags , OUTPUTDIR)
 
     if TTS_ENGINE == "openai":
         # Uses OpenAI's TTS instead of Edge TTS. 
@@ -82,7 +84,7 @@ if __name__ == "__main__":
     if background_video_urls is not None:
         background_video_urls = merge_empty_intervals(background_video_urls)
         if background_video_urls is not None:
-            video = get_output_media(SAMPLE_TOPIC, SAMPLE_FILE_NAME, timed_captions, background_video_urls, VIDEO_SERVER, LANDSCAPE , MUSIC_VOLUME)
+            video = get_output_media(SAMPLE_TOPIC, SAMPLE_FILE_NAME, timed_captions, background_video_urls, VIDEO_SERVER, LANDSCAPE , MUSIC_VOLUME, OUTPUTDIR)
             print(video)
         else:
             print("No background video after merging intervals")

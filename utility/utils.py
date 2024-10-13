@@ -34,13 +34,21 @@ def log_response(log_type, query,response):
             outfile.write(json.dumps(log_entry) + '\n')
 
 
-def save_video_description_to_file(filename, script, hashtags):
+def save_video_description_to_file(filename, script, hashtags, output_directory):
+    # Create the generated_outputs directory if it doesn't exist
+    # output_directory = "generated_outputs"
+    os.makedirs(output_directory, exist_ok=True)  # Creates the directory if it doesn't exist
+
+    # Update the filename to include the directory path
+    full_path = os.path.join(output_directory, filename)
+
     try:
-        with open(filename, 'w') as f:
+        with open(full_path, 'w') as f:
             f.write("Description:\n")
             f.write(script + "\n\n")
             f.write("Hashtags:\n")
             f.write(hashtags + "\n\n")
-        print(f"Response and hashtags successfully saved to {filename}")
+        print(f"Response and hashtags successfully saved to {full_path}")
     except Exception as e:
         print(f"Error saving to file: {e}")
+
