@@ -75,6 +75,10 @@ import json
 def fix_json(json_str):
     # Escape backslashes that are not already escaped
     json_str = re.sub(r'(?<!\\)\\(?![\\"])', r"\\\\", json_str)  # Only escape lone backslashes
+    
+    # Remove trailing commas in JSON arrays and objects
+    json_str = re.sub(r',\s*([\]}])', r'\1', json_str)
+    
     return json_str
 
 def fix_json_content(content):
@@ -92,10 +96,10 @@ def fix_quotes(content):
     return content
 
 def getVideoSearchQueriesTimed(script, captions_timed, provider, model):
-    # Assuming the end timestamp is the second value of the last tuple in captions_timed
     end = captions_timed[-1][0][1]
     try:
         out = [[[0, 0], ""]]  # Initialize output with a placeholder
+        
         while out[-1][0][1] != end:
             content = call_OpenAI(script, captions_timed, provider, model)  # Fetch content
             
@@ -109,6 +113,7 @@ def getVideoSearchQueriesTimed(script, captions_timed, provider, model):
                 # Try parsing the content as JSON
                 out = json.loads(content)
             except json.JSONDecodeError as e:
+                print(f"JSON decode error: {e}")
                 print("Original content: \n", content, "\n\n")
                 
                 # Step 3: Remove formatting artifacts like markdown (```json blocks)
@@ -122,19 +127,15 @@ def getVideoSearchQueriesTimed(script, captions_timed, provider, model):
                     # Try parsing the cleaned-up content again
                     out = json.loads(fixed_content)
                 except json.JSONDecodeError as e_inner:
-                    print("Still failing after fix:", e_inner)
+                    print(f"Still failing after fix: {e_inner}")
                     return None
         
         # If everything works, return the parsed JSON
         return out
     except Exception as e:
         # Generic error handler
-        print("Error in response:", e)
+        print(f"Error in response: {e}")
         return None
-
-
-
-
 
 
 
