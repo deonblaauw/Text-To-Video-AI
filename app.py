@@ -20,7 +20,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate a video from a topic.")
     parser.add_argument("topic", type=str, help="The topic for the video")
     parser.add_argument("--landscape", action='store_true', help="Generate video in landscape mode (default is portrait)")
-    parser.add_argument("--output_file", type=str, default="video_description.txt", help="The file name to save the script and hashtags. Default is video_description.txt")
     parser.add_argument("--tts", type=str, default="openai", help="Text to speech engine. Options are openai or edge. Default is openai")
     parser.add_argument("--output_dir", type=str, default="generated_outputs", help="Foldername where videos and other outputs are stored. Default is generated_outputs")
     parser.add_argument("--duration", type=str, default="50", help="The duration of the video in seconds. Default is 50 seconds")
@@ -33,7 +32,6 @@ if __name__ == "__main__":
     MODEL = "gpt-4o"                # options are: gpt-4o (for openai) | mixtral-8x7b-32768 (groq)
     VOICE = "Random"                # Options are ["alloy", "echo", "fable", "onyx", "nova", "shimmer"], anything else results in random selection
     TTS_ENGINE = args.tts           # Options are openai | edge
-    OUTPUT_FILE = args.output_file  # File to save the response and hashtags
     VIDEO_DURATION = args.duration
     MUSIC_VOLUME = 0.5              # music volume between 0.0 and 1.0
     OUTPUTDIR = args.output_dir
@@ -54,7 +52,7 @@ if __name__ == "__main__":
     print("trends: {}".format(vid_hashtags))
 
     # Save response and hashtags to a file
-    save_video_description_to_file(OUTPUT_FILE, response, vid_hashtags , OUTPUTDIR)
+    save_video_description_to_file(SAMPLE_TOPIC, response, vid_hashtags , OUTPUTDIR)
 
     if TTS_ENGINE == "openai":
         # Uses OpenAI's TTS instead of Edge TTS. 

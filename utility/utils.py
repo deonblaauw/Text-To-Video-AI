@@ -34,15 +34,27 @@ def log_response(log_type, query,response):
             outfile.write(json.dumps(log_entry) + '\n')
 
 
-def save_video_description_to_file(filename, script, hashtags, output_directory):
-    # Create the generated_outputs directory if it doesn't exist
-    # output_directory = "generated_outputs"
-    os.makedirs(output_directory, exist_ok=True)  # Creates the directory if it doesn't exist
+import os
 
-    # Update the filename to include the directory path
-    full_path = os.path.join(output_directory, filename)
+def save_video_description_to_file(sample_topic, script, hashtags, output_directory):
+    # Create the directory if it doesn't exist
+    os.makedirs(output_directory, exist_ok=True)
+
+    # Limit the filename to 40 characters and replace spaces with underscores
+    filename_base = sample_topic.replace(" ", "_")[:40]
+
+    # Set the initial full path for the file
+    full_path = os.path.join(output_directory, filename_base + ".txt")
+
+    # Check if the file already exists, and append a number if necessary
+    counter = 1
+    while os.path.exists(full_path):
+        # If the file exists, append a counter to the filename before the extension
+        full_path = os.path.join(output_directory, f"{filename_base}_{counter}.txt")
+        counter += 1
 
     try:
+        # Save the script and hashtags to the file
         with open(full_path, 'w') as f:
             f.write("Description:\n")
             f.write(script + "\n\n")
@@ -51,4 +63,5 @@ def save_video_description_to_file(filename, script, hashtags, output_directory)
         print(f"Response and hashtags successfully saved to {full_path}")
     except Exception as e:
         print(f"Error saving to file: {e}")
+
 

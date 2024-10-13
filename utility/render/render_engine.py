@@ -77,14 +77,22 @@ def get_music():
     return music_file_path
 
 def get_output_media(sample_topic, audio_file_path, timed_captions, background_video_data, video_server, landscape, volume , output_directory):
-    # Create the generated_outputs directory if it doesn't exist
-    # output_directory = "generated_outputs"
-    os.makedirs(output_directory, exist_ok=True)  # Creates the directory if it doesn't exist
 
-    if len(sample_topic) < 40:
-        OUTPUT_FILE_NAME = os.path.join(output_directory, sample_topic.replace(" ", "_") + ".mp4")
-    else:
-        OUTPUT_FILE_NAME = os.path.join(output_directory, "rendered_video.mp4")
+    # Create the directory if it doesn't exist
+    os.makedirs(output_directory, exist_ok=True)
+
+    # Limit the filename to 40 characters and replace spaces with underscores
+    filename_base = sample_topic.replace(" ", "_")[:40]
+
+    # Set the initial output file name
+    OUTPUT_FILE_NAME = os.path.join(output_directory, filename_base + ".mp4")
+
+    # Check if the file already exists, and append a number if necessary
+    counter = 1
+    while os.path.exists(OUTPUT_FILE_NAME):
+        # If the file exists, append a counter to the filename before the extension
+        OUTPUT_FILE_NAME = os.path.join(output_directory, f"{filename_base}_{counter}.mp4")
+        counter += 1
 
     magick_path = get_program_path("magick")
     print(magick_path)
