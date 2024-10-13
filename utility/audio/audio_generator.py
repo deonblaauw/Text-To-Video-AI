@@ -3,12 +3,62 @@ import requests
 import os
 import random
 
-async def generate_audio(text, outputFilename):
-    communicate = edge_tts.Communicate(text, "en-AU-WilliamNeural")
+async def generate_audio_edge(text, outputFilename, voice):
+    
+    available_voices = [
+    "en-AU-NatashaNeural",
+    "en-AU-WilliamNeural",
+    "en-CA-ClaraNeural",
+    "en-CA-LiamNeural",
+    "en-HK-SamNeural",
+    "en-HK-YanNeural",
+    "en-IN-NeerjaNeural",
+    "en-IN-PrabhatNeural",
+    "en-IE-ConnorNeural",
+    "en-IE-EmilyNeural",
+    "en-KE-AsiliaNeural",
+    "en-KE-ChilembaNeural",
+    "en-NZ-MitchellNeural",
+    "en-NZ-MollyNeural",
+    "en-NG-AbeoNeural",
+    "en-NG-EzinneNeural",
+    "en-PH-JamesNeural",
+    "en-PH-RosaNeural",
+    "en-SG-LunaNeural",
+    "en-SG-WayneNeural",
+    "en-ZA-LeahNeural",
+    "en-ZA-LukeNeural",
+    "en-TZ-ElimuNeural",
+    "en-TZ-ImaniNeural",
+    "en-GB-LibbyNeural",
+    "en-GB-MaisieNeural",
+    "en-GB-RyanNeural",
+    "en-GB-SoniaNeural",
+    "en-GB-ThomasNeural",
+    "en-US-AriaNeural",
+    "en-US-AnaNeural",
+    "en-US-ChristopherNeural",
+    "en-US-EricNeural",
+    "en-US-GuyNeural",
+    "en-US-JennyNeural",
+    "en-US-MichelleNeural",
+    "en-US-RogerNeural",
+    "en-US-SteffanNeural"
+    ]
+
+    # Check if the provided voice is valid; if not, choose a random one
+    if voice not in available_voices:
+        voice = random.choice(available_voices)
+        print(f"No voice specified by user. Using random voice: {voice}")
+
+    
+    communicate = edge_tts.Communicate(text, voice)
+
+
     await communicate.save(outputFilename)
 
 # Async function to generate audio using OpenAI TTS
-async def generate_audio_openai(text, outputFilename, voice=None):
+async def generate_audio_openai(text, outputFilename, voice):
     api_key = os.getenv("OPENAI_API_KEY")  # Ensure your API key is stored in an environment variable
     url = "https://api.openai.com/v1/audio/speech"
 

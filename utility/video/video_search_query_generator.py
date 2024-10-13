@@ -69,12 +69,18 @@ Note: Your response should be the response only and no extra text or data.
 """
 
 
+import re
+import json
+
 def fix_json(json_str):
     # Replace typographical apostrophes with straight single quotes
     json_str = json_str.replace("’", "'")
     
     # Replace mixed and incorrect quotes with double quotes
     json_str = json_str.replace("“", "\"").replace("”", "\"").replace("‘", "\"")
+    
+    # Handle the case for JSON backslashes by escaping them properly
+    json_str = json_str.replace("\\", "\\\\")  # Escape any lone backslashes properly
     
     return json_str
 
@@ -95,7 +101,6 @@ def fix_quotes(content):
     # Ensure all quotes are correctly formatted, like "cow"s" to "cow's"
     content = re.sub(r'(\w)"(\w)', r'\1\'\2', content)
     return content
-
 
 def getVideoSearchQueriesTimed(script, captions_timed, provider, model):
     # Assuming the end timestamp is the second value of the last tuple in captions_timed
@@ -137,6 +142,7 @@ def getVideoSearchQueriesTimed(script, captions_timed, provider, model):
         # Generic error handler
         print("Error in response:", e)
         return None
+
 
 
 
