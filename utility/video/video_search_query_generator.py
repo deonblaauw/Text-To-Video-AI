@@ -3,7 +3,7 @@ import os
 import json
 import re
 from datetime import datetime
-from utility.utils import log_response,LOG_TYPE_GPT
+from utility.utils import log_response,LOG_TYPE_GPT , fix_json_content , fix_json , fix_quotes
 
 log_directory = ".logs/gpt_logs"
 
@@ -69,31 +69,31 @@ Note: Your response should be the response only and no extra text or data.
 """
 
 
-import re
-import json
+# import re
+# import json
 
-def fix_json(json_str):
-    # Escape backslashes that are not already escaped
-    json_str = re.sub(r'(?<!\\)\\(?![\\"])', r"\\\\", json_str)  # Only escape lone backslashes
+# def fix_json(json_str):
+#     # Escape backslashes that are not already escaped
+#     json_str = re.sub(r'(?<!\\)\\(?![\\"])', r"\\\\", json_str)  # Only escape lone backslashes
     
-    # Remove trailing commas in JSON arrays and objects
-    json_str = re.sub(r',\s*([\]}])', r'\1', json_str)
+#     # Remove trailing commas in JSON arrays and objects
+#     json_str = re.sub(r',\s*([\]}])', r'\1', json_str)
     
-    return json_str
+#     return json_str
 
-def fix_json_content(content):
-    # Fix improperly formatted strings, handling cases where single quotes should be preserved
-    content = re.sub(r'(\w)"(\w)', r'\1\'\2', content)  # Fix "word"s" to "word's"
+# def fix_json_content(content):
+#     # Fix improperly formatted strings, handling cases where single quotes should be preserved
+#     content = re.sub(r'(\w)"(\w)', r'\1\'\2', content)  # Fix "word"s" to "word's"
     
-    # Replace stray single quotes with double quotes in keys/values
-    content = re.sub(r'(?<=[:,\s])\'(?=\w+\'?\s*[:,\]])', '"', content)  # Replace single quotes in keys/values
+#     # Replace stray single quotes with double quotes in keys/values
+#     content = re.sub(r'(?<=[:,\s])\'(?=\w+\'?\s*[:,\]])', '"', content)  # Replace single quotes in keys/values
     
-    return content
+#     return content
 
-def fix_quotes(content):
-    # Ensure all quotes are correctly formatted around JSON keys/values
-    content = re.sub(r'(?<=[:,\s])\'(?=\w+\'?\s*[:,\]])', '"', content)
-    return content
+# def fix_quotes(content):
+#     # Ensure all quotes are correctly formatted around JSON keys/values
+#     content = re.sub(r'(?<=[:,\s])\'(?=\w+\'?\s*[:,\]])', '"', content)
+#     return content
 
 def getVideoSearchQueriesTimed(script, captions_timed, provider, model):
     end = captions_timed[-1][0][1]
