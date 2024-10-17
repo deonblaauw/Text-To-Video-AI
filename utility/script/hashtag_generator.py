@@ -1,7 +1,7 @@
 import os
 from openai import OpenAI
 import json
-
+from utility.utils import fix_json_content , fix_json , fix_quotes
 
 def generate_hashtags(llmscript,provider,model):
 
@@ -40,12 +40,32 @@ def generate_hashtags(llmscript,provider,model):
             ]
         )
     content = response.choices[0].message.content
+    # try:
+    #     trends = json.loads(content)["trends"]
+    # except Exception as e:
+    #     json_start_index = content.find('{')
+    #     json_end_index = content.rfind('}')
+    #     print(content)
+    #     content = content[json_start_index:json_end_index+1]
+    #     trends = json.loads(content)["trends"]
+    # return trends
+
+            # Try to load the JSON content
     try:
         trends = json.loads(content)["trends"]
-    except Exception as e:
-        json_start_index = content.find('{')
-        json_end_index = content.rfind('}')
-        print(content)
-        content = content[json_start_index:json_end_index+1]
-        trends = json.loads(content)["trends"]
+    except json.JSONDecodeError as e:
+        print(f"JSON Decode Error: {e}")
+        print(f"Raw content: {content}")
+
+        # Attempt to fix the JSON if there was an issue
+        content = fix_json(content)
+        content = fix_json_content(content)
+
+        # Attempt JSON parsing again
+        try:
+            trends = json.loads(content)["trends"]
+        except json.JSONDecodeError as e:
+            print(f"Failed after attempting to fix JSON: {e}")
+            return None
+
     return trends

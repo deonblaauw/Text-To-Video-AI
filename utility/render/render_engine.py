@@ -8,8 +8,8 @@ import PIL
 import random
 from moviepy.editor import (AudioFileClip, CompositeVideoClip, CompositeAudioClip, ImageClip,
                             TextClip, VideoFileClip, vfx)
-from moviepy.audio.fx.audio_loop import audio_loop
-from moviepy.audio.fx.audio_normalize import audio_normalize
+# from moviepy.audio.fx.audio_loop import audio_loop
+# from moviepy.audio.fx.audio_normalize import audio_normalize
 import requests
 
 # def download_file(url, filename):
@@ -66,7 +66,7 @@ def get_music():
     music_folder = "background_music"
 
     # List all .wav files in the folder
-    music_files = [f for f in os.listdir(music_folder) if f.endswith('.wav')]
+    music_files = [f for f in os.listdir(music_folder) if f.endswith('.wav') or f.endswith('.mp3') ]
 
     # Select a random .wav file from the list
     if music_files:
@@ -76,7 +76,7 @@ def get_music():
     
     return music_file_path
 
-def get_output_media(sample_topic, audio_file_path, timed_captions, background_video_data, video_server, landscape, volume , output_directory):
+def get_output_media(sample_topic, audio_file_path, timed_captions, background_video_data, video_server, landscape, volume_wav,volume_mp3, volume_tts , output_directory):
 
     # Create the directory if it doesn't exist
     os.makedirs(output_directory, exist_ok=True)
@@ -130,11 +130,16 @@ def get_output_media(sample_topic, audio_file_path, timed_captions, background_v
         visual_clips.append(video_clip)
 
     audio_clips = []
-    audio_file_clip = AudioFileClip(audio_file_path)
-    audio_clips.append(audio_file_clip)
+
+    # Add the generated TTS audio to the video
+    if audio_file_path:
+        audio_file_clip = AudioFileClip(audio_file_path)
+        # Ensure TTS is at max volume
+        audio_file_clip = audio_file_clip.volumex(volume_tts)
+        audio_clips.append(audio_file_clip)
 
     for (t1, t2), text in timed_captions:
-        text_clip = TextClip(txt=text, fontsize=100, color="white", stroke_width=3, stroke_color="black", method="label")
+        text_clip = TextClip(txt=text, fontsize=150, transparent=True, bg_color = "transparent", font = "Lane" , color="white", stroke_width=3, stroke_color="black", method="label")
         text_clip = text_clip.set_start(t1)
         text_clip = text_clip.set_end(t2)
         text_clip = text_clip.set_position(["center", 800])
@@ -148,7 +153,13 @@ def get_output_media(sample_topic, audio_file_path, timed_captions, background_v
         music_clip = AudioFileClip(music_file_path)
         
         # Adjust volume (e.g., reduce to 80%)
-        music_clip = music_clip.volumex(volume)
+        if music_file_path.endswith('.wav'):
+            music_clip = music_clip.volumex(volume_wav)
+        elif music_file_path.endswith('.mp3'):
+            music_clip = music_clip.volumex(volume_mp3)
+        else:
+            print("Unsupported file format: " , music_file_path.encode)
+        
 
         # Loop the music to fit the video duration
         video_duration = sum([(t2 - t1) for (t1, t2), _ in background_video_data])

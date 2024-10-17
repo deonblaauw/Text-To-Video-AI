@@ -5,11 +5,6 @@ import json
 from utility.utils import fix_json_content , fix_json , fix_quotes
 
 
-import json
-import re
-import os
-from openai import OpenAI
-
 def generate_script(topic, provider, model, vid_time):
     vid_length = float(vid_time) * 2.8
 
@@ -32,20 +27,6 @@ def generate_script(topic, provider, model, vid_time):
         
         They are incredibly engaging and original. When a user requests a specific type of facts short, you will create it.
 
-        For instance, if the user asks for:
-        Weird facts
-        You would produce content like this:
-
-        Weird facts you don't know:
-        - Bananas are berries, but strawberries aren't.
-        - A single cloud can weigh over a million pounds.
-        - There's a species of jellyfish that is biologically immortal.
-        - Honey never spoils; archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still edible.
-        - The shortest war in history was between Britain and Zanzibar on August 27, 1896. Zanzibar surrendered after 38 minutes.
-        - Octopuses have three hearts and blue blood.
-
-        You are now tasked with creating the best short script based on the user's requested type of 'facts'.
-
         Keep it brief, highly interesting, and unique.
 
         Stictly output the script in a JSON format like below, and only provide a parsable JSON object with the key 'script'.
@@ -64,6 +45,9 @@ def generate_script(topic, provider, model, vid_time):
             ]
         )
         content = response.choices[0].message.content
+
+        # Apply fix_json to escape unescaped backslashes
+        content = fix_json(content)
 
         # Try to load the JSON content
         try:
@@ -88,6 +72,7 @@ def generate_script(topic, provider, model, vid_time):
     except Exception as e:
         print(f"An error occurred during script generation: {e}")
         return None
+
 
 
 

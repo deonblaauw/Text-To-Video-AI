@@ -12,7 +12,9 @@ from utility.captions.timed_captions_generator import generate_timed_captions
 from utility.video.background_video_generator import generate_video_url
 from utility.render.render_engine import get_output_media
 from utility.video.video_search_query_generator import getVideoSearchQueriesTimed, merge_empty_intervals
+from utility.video.video_filters import apply_video_effect , VIDEO_EFFECTS
 import argparse
+import subprocess
 
 if __name__ == "__main__":
     # Argument parsing to include landscape/portrait option and output filename
@@ -21,7 +23,7 @@ if __name__ == "__main__":
     parser.add_argument("--landscape", action='store_true', help="Generate video in landscape mode (default is portrait)")
     parser.add_argument("--tts", type=str, default="openai", help="Text to speech engine. Options are openai or edge. Default is openai")
     parser.add_argument("--output_dir", type=str, default="generated_outputs", help="Foldername where videos and other outputs are stored. Default is generated_outputs")
-    parser.add_argument("--duration", type=str, default="50", help="The duration of the video in seconds. Default is 50 seconds")
+    parser.add_argument("--duration", type=str, default="40", help="The duration of the video in seconds. Default is 30 seconds")
     parser.add_argument("--num_vids", type=int, default=1, help="Number of videos to generate. Default is 1.")
 
     args = parser.parse_args()
@@ -33,10 +35,28 @@ if __name__ == "__main__":
     VOICE = "Random"
     TTS_ENGINE = args.tts
     VIDEO_DURATION = args.duration
-    MUSIC_VOLUME = 0.5
+    MUSIC_VOLUME_MP3 = 0.08
+    MUSIC_VOLUME_WAV = 0.5
+    VOLUME_TTS = 1.0
     OUTPUTDIR = args.output_dir
     NUM_VIDS = args.num_vids
     LANDSCAPE = args.landscape
+
+    # [DEBUG] for testing integrated effect support below
+    # video = "generated_outputs/Insipiration_facts_about_the_moon_landin.mp4"
+    # # Assuming OUTPUTDIR, video, and VIDEO_EFFECTS are already defined, this loops through all effects in the list
+    # for effect_name in VIDEO_EFFECTS:
+    #     # Generate output filename based on the effect name
+    #     output_animated_file = os.path.join(OUTPUTDIR, f"{effect_name}_" + os.path.basename(video))
+        
+    #     # Print which effect is being applied
+    #     print(f"Applying effect: {effect_name}")
+        
+    #     # Apply the effect
+    #     apply_video_effect(video, effect_name, output_animated_file)
+        
+    #     # Notify when the effect has been applied
+    #     print(f"Saved output for effect '{effect_name}' to {output_animated_file}")
 
     def generate_video(topic):
         # Main video generation process
@@ -76,8 +96,26 @@ if __name__ == "__main__":
         if background_video_urls is not None:
             background_video_urls = merge_empty_intervals(background_video_urls)
             if background_video_urls is not None:
-                video = get_output_media(topic, SAMPLE_FILE_NAME, timed_captions, background_video_urls, VIDEO_SERVER, LANDSCAPE, MUSIC_VOLUME, OUTPUTDIR)
+                video = get_output_media(topic, SAMPLE_FILE_NAME, timed_captions, background_video_urls, VIDEO_SERVER, LANDSCAPE, MUSIC_VOLUME_WAV, MUSIC_VOLUME_MP3, VOLUME_TTS, OUTPUTDIR)
                 print(video)
+
+                # [DEBUG] removing effects for now (still debugging)
+                # # Assuming OUTPUTDIR, video, and VIDEO_EFFECTS are already defined, this loops through all effects in the list
+                # for effect_name in VIDEO_EFFECTS:
+                #     # Generate output filename based on the effect name
+                #     output_animated_file = os.path.join(OUTPUTDIR, f"{effect_name}_" + os.path.basename(video))
+                    
+                #     # Print which effect is being applied
+                #     print(f"Applying effect: {effect_name}")
+                    
+                #     # Apply the effect
+                #     apply_video_effect(video, effect_name, output_animated_file)
+                    
+                #     # Notify when the effect has been applied
+                #     print(f"Saved output for effect '{effect_name}' to {output_animated_file}")
+
+
+
             else:
                 print("No background video after merging intervals")
         else:

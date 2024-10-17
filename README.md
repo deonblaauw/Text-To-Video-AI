@@ -36,9 +36,12 @@ Output will be generated in a file named Topic_name.mp4 while "Topic name" is le
 python app.py "Topic name" --landscape
 ```
 
-If you are running on Apple Silicon, remember to install ImageMagick
+If you are running on Apple Silicon, remember to install ImageMagick and ffmpeg
 ```
 brew install imagemagick
+```
+```
+brew install ffmpeg
 ```
 
 ### Quick Start

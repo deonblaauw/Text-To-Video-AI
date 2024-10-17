@@ -71,12 +71,12 @@ import re
 import json
 
 def fix_json(json_str):
-    # Escape backslashes that are not already escaped
-    json_str = re.sub(r'(?<!\\)\\(?![\\"])', r"\\\\", json_str)  # Only escape lone backslashes
-    
+    # Escape unescaped backslashes (i.e., backslashes that are not part of an existing escape sequence)
+    json_str = re.sub(r'(?<!\\)\\(?![\\"])', r"\\\\", json_str)
+
     # Remove trailing commas in JSON arrays and objects
     json_str = re.sub(r',\s*([\]}])', r'\1', json_str)
-    
+
     return json_str
 
 def fix_json_content(content):
@@ -85,8 +85,12 @@ def fix_json_content(content):
     
     # Replace stray single quotes with double quotes in keys/values
     content = re.sub(r'(?<=[:,\s])\'(?=\w+\'?\s*[:,\]])', '"', content)  # Replace single quotes in keys/values
+
+    # Replace \\n with actual newlines (\n)
+    content = content.replace("\\n", "\n")
     
     return content
+
 
 def fix_quotes(content):
     # Ensure all quotes are correctly formatted around JSON keys/values
