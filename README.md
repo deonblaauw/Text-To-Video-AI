@@ -1,71 +1,190 @@
-# Text To Video AI 🔥
+Here’s an updated `README.md` file reflecting the current code:
 
-Generate video from text using AI
+---
 
-### Youtube Tutorial -> https://www.youtube.com/watch?v=AXo6VfRUgic
+# Video Generation Script
 
-### Medium tutorial -> https://medium.com/@anilmatcha/text-to-video-ai-how-to-create-videos-for-free-a-complete-guide-a25c91de50b8
+This Python script automatically generates videos based on a given topic using various AI-driven components. The script integrates text generation, text-to-speech (TTS), background video selection, caption generation, and video rendering, making it an automated video production tool.
 
-### Demo Video
+---
 
-https://github.com/user-attachments/assets/1e440ace-8560-4e12-850e-c532740711e7
+## Key Features
 
-### 🌟 Show Support
+1. **AI-Powered Script Generation**:  
+   Automatically generates video scripts based on the provided topic using AI models (OpenAI GPT).
 
-If you enjoy using Text to Video AI, we'd appreciate your support with a star ⭐ on our repository. Your encouragement is invaluable and inspires us to continually improve and expand Text to Video AI. Thank you, and happy content creation! 🎉
+2. **Text-to-Speech (TTS) Support**:  
+   Converts generated scripts into speech using either OpenAI’s or Microsoft Edge’s TTS engine.
 
-[![GitHub star chart](https://img.shields.io/github/stars/SamurAIGPT/Text-To-Video-AI?style=social)](https://github.com/SamurAIGPT/Text-To-Video-AI/stargazers)
+3. **Background Video Retrieval**:  
+   Fetches background videos matching the script content from the Pexels video library.
 
-### Steps to run
+4. **Caption Generation**:  
+   Creates and times captions based on the generated audio.
 
-Run the following steps
+5. **Video Effects (Experimental)**:  
+   Optionally applies various video effects to the generated video (currently in the debug phase).
 
+6. **Multi-Video Generation**:  
+   Generates multiple videos in one execution, with the ability to create new topics for each video.
+
+---
+
+## Installation
+
+1. **Clone the Repository**:
+    ```bash
+    git clone <repository_url>
+    cd <repository_folder>
+    ```
+
+2. **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3. **Set Up API Keys**:
+   - **OpenAI**: Add your OpenAI API key.
+   - **Edge TTS**: Ensure you have access to Microsoft Edge TTS services.
+
+4. **Configure Video Server**:
+   The script uses Pexels for background video retrieval. Ensure you have a Pexels API key configured in your environment.
+
+---
+
+## Usage
+
+Run the script by providing a topic and desired options:
+
+```bash
+python app.py "Interesting facts about space" --num_vids 2 --landscape --tts openai --output_dir my_videos --duration 60
 ```
-export OPENAI_KEY="api-key"
-export PEXELS_KEY="pexels-key"
-export GROQ_API_KEY="groq-key"
 
-pip install -r requirements.text
+### Command-Line Arguments
 
-python app.py "Topic name"
+- **`topic`** (required): The topic for the video.
+- **`--landscape`** (optional): A flag to generate the video in landscape mode (default is portrait).
+- **`--tts`** (optional): TTS engine to use (`openai` or `edge`, default is `openai`).
+- **`--output_dir`** (optional): Directory to store the generated outputs (default is `generated_outputs`).
+- **`--duration`** (optional): Duration of the video in seconds (default is 40 seconds).
+- **`--num_vids`** (optional): Number of videos to generate (default is 1).
+
+---
+
+## Core Components
+
+### Script Generation
+
+The script uses OpenAI’s GPT model to generate a script based on the topic:
+
+```python
+generate_script(topic, provider, model, duration)
 ```
 
-Output will be generated in a file named Topic_name.mp4 while "Topic name" is less than 40 characters, otherwise it will be named rendered_video.mp4. The default renders a TikTok style reel video at 1080x1920 resolution, along with voice over and background music. To render landscape, add the `--landscape` flag after the text query i.e. 
+### Hashtag Generation
 
-```
-python app.py "Topic name" --landscape
-```
+Automatically generates hashtags for social media platforms based on the script:
 
-If you are running on Apple Silicon, remember to install ImageMagick and ffmpeg
-```
-brew install imagemagick
-```
-```
-brew install ffmpeg
+```python
+generate_hashtags(script, provider, model)
 ```
 
-### Quick Start
+### TTS (Text-to-Speech)
 
-Without going through the installation hastle here is a simple way to generate videos from text
+Depending on the selected engine, the script is converted into speech:
 
-For a simple way to run the code, checkout the [colab link](/Text_to_Video_example.ipynb)
+- **OpenAI TTS**:
+    ```python
+    generate_audio_openai(script, filename, voice)
+    ```
+- **Microsoft Edge TTS**:
+    ```python
+    generate_audio_edge(script, filename, voice)
+    ```
 
-To generate a video, just click on all the cells one by one. Setup your api keys for openai and pexels
+### Caption Generation
 
-## 💁 Contribution
+Timed captions are generated based on the audio:
 
-As an open-source project we are extremely open to contributions. To get started raise an issue in Github or create a pull request
+```python
+generate_timed_captions(audio_filename)
+```
 
-### Other useful Video AI Projects
+### Background Video Search
 
-[AI Youtube Shorts generator](https://github.com/SamurAIGPT/AI-Youtube-Shorts-Generator/)
+Relevant background video URLs are retrieved from Pexels based on the generated script:
 
-[Faceless Video Generator](https://github.com/SamurAIGPT/Faceless-Video-Generator)
+```python
+getVideoSearchQueriesTimed(script, captions, provider, model)
+generate_video_url(search_terms, server, orientation_landscape)
+```
 
-[AI B-roll generator](https://github.com/Anil-matcha/AI-B-roll)
+### Rendering the Final Video
 
-[AI video generator](https://www.vadoo.tv/ai-video-generator)
+All elements (script, audio, captions, and background videos) are combined and rendered into a final video:
 
-[Text to Video AI](https://www.vadoo.tv/text-to-video-ai)
+```python
+get_output_media(topic, audio_filename, captions, background_videos, video_server, landscape, music_volume_wav, music_volume_mp3, volume_tts, output_dir)
+```
 
-[Autoshorts AI](https://www.vadoo.tv/autoshorts-ai)
+---
+
+## Experimental Features
+
+### Video Effects (In Development)
+
+The script includes an experimental feature to apply video effects to the final video. This is currently in the debug phase and can be enabled manually by modifying the code. Available effects are defined in the `VIDEO_EFFECTS` list.
+
+---
+
+## Example Workflow
+
+The script follows these steps:
+
+1. **Generate the Script**: 
+   A topic-based video script is created using OpenAI’s GPT model.
+   
+2. **Create Hashtags**: 
+   Hashtags relevant to the script are generated.
+
+3. **Generate TTS Audio**: 
+   The script is converted into speech using either OpenAI or Edge TTS.
+
+4. **Generate Captions**: 
+   Captions are automatically generated and timed according to the TTS audio.
+
+5. **Retrieve Background Videos**: 
+   Relevant background videos are fetched using search queries based on the script content.
+
+6. **Render the Final Video**: 
+   All components are assembled into a single video file.
+
+7. **Repeat for Additional Videos** (if requested): 
+   If the `--num_vids` argument is greater than 1, the script generates new topics for each subsequent video, ensuring fresh content.
+
+---
+
+## Example
+
+To generate a single 60-second landscape video about "Facts about submarines" using Microsoft Edge TTS and saving the outputs in a folder named `my_videos`:
+
+```bash
+python app.py "Facts about submarines" --num_vids 1 --landscape --tts edge --output_dir my_videos --duration 60
+```
+
+---
+
+## Debugging & Development Notes
+
+- The video effects feature is currently in a development/debugging phase and is not enabled by default.
+- The script is designed to handle multi-video generation, but generating new topics after each video is still under development to ensure diversity.
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+This `README.md` provides an overview of the script, its functionalities, how to install and use it, as well as some insights into its underlying structure and components.
