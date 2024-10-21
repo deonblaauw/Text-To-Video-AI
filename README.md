@@ -1,5 +1,3 @@
-Here’s an updated `README.md` file reflecting the current code:
-
 ---
 
 # Video Generation Script
@@ -7,6 +5,11 @@ Here’s an updated `README.md` file reflecting the current code:
 This Python script automatically generates videos based on a given topic using various AI-driven components. The script integrates text generation, text-to-speech (TTS), background video selection, caption generation, and video rendering, making it an automated video production tool.
 
 ---
+
+Developed and tested on macOS Sequoia 15.0.1
+
+![macos](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=apple&logoColor=white)
+
 
 ## Key Features
 
@@ -187,4 +190,4 @@ This project is licensed under the MIT License.
 
 ---
 
-This `README.md` provides an overview of the script, its functionalities, how to install and use it, as well as some insights into its underlying structure and components.
+This `README.md` provides an overview of the script, its functionalities, how to install and use it, as well as some insights into its underlying structure and components. To view the Readme.md of the original project, [please refer here.](https://github.com/SamurAIGPT/Text-To-Video-AI/blob/main/README.md)
