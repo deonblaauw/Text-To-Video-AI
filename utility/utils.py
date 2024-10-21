@@ -56,7 +56,7 @@ def save_video_description_to_file(sample_topic, script, hashtags, output_direct
     try:
         # Save the script and hashtags to the file
         with open(full_path, 'w') as f:
-            f.write("Description:\n")
+            # f.write("Description:\n")
             f.write(script + "\n\n")
             f.write("Hashtags:\n")
             f.write(hashtags + "\n\n")
